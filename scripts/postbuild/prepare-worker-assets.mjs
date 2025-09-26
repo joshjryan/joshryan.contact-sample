@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(here, '..', '..');
-const distClientDir = resolve(projectRoot, 'dist', 'client');
+const distDir = resolve(projectRoot, 'dist');
+const distClientDir = resolve(distDir, 'client');
+const distAstroDir = resolve(distDir, '_astro');
 const publicDir = resolve(projectRoot, 'public');
 
 if (!existsSync(distClientDir)) {
@@ -14,7 +16,15 @@ if (!existsSync(distClientDir)) {
 if (existsSync(publicDir)) {
   cpSync(publicDir, distClientDir, {
     recursive: true,
-    force: false,
-    errorOnExist: false,
+    force: true,
+  });
+}
+
+if (existsSync(distAstroDir)) {
+  const clientAstroDir = resolve(distClientDir, '_astro');
+  mkdirSync(clientAstroDir, { recursive: true });
+  cpSync(distAstroDir, clientAstroDir, {
+    recursive: true,
+    force: true,
   });
 }
