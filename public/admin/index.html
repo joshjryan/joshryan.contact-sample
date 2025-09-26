@@ -28,6 +28,7 @@
                 state ? { state } : undefined,
                 validatedState ? { validatedState } : undefined,
               );
+
             } catch (parseError) {
               console.error(`${LOG_PREFIX} Failed to parse GitHub authorization payload.`, parseError);
             }
