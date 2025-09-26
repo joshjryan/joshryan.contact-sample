@@ -7,6 +7,28 @@
   </head>
   <body>
     <!-- Load Decap CMS from the UNPKG CDN -->
+    <script>
+      (function () {
+        const LOG_PREFIX = '[Decap OAuth]';
+        console.info(`${LOG_PREFIX} Waiting for GitHub authorization messages...`);
+
+        window.addEventListener('message', (event) => {
+          if (typeof event.data !== 'string') {
+            return;
+          }
+
+          if (event.data.startsWith('authorization:github:success:')) {
+            try {
+              const payloadText = event.data.substring('authorization:github:success:'.length);
+              const payload = JSON.parse(payloadText);
+              console.info(`${LOG_PREFIX} Received GitHub authorization payload.`, payload);
+            } catch (parseError) {
+              console.error(`${LOG_PREFIX} Failed to parse GitHub authorization payload.`, parseError);
+            }
+          }
+        });
+      })();
+    </script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </body>
 </html>
