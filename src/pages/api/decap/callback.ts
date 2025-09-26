@@ -1,11 +1,25 @@
-import type { PagesFunction } from '@cloudflare/workers-types';
+import type { APIContext, APIRoute } from 'astro';
 
-/**
- * Cloudflare Pages Function to complete the GitHub OAuth flow for Decap CMS.
- */
-export const onRequest: PagesFunction = async ({ env, request }) => {
-  const clientId = env.GITHUB_CLIENT_ID as string | undefined;
-  const clientSecret = env.GITHUB_CLIENT_SECRET as string | undefined;
+type RuntimeEnv = Record<string, string | undefined>;
+
+type GithubTokenResponse = {
+  access_token?: string;
+  error?: string;
+  error_description?: string;
+};
+
+const getGithubCredentials = (
+  locals: APIContext['locals'],
+): { clientId?: string; clientSecret?: string } => {
+  const runtimeEnv = locals.runtime?.env as RuntimeEnv | undefined;
+  const clientId = runtimeEnv?.GITHUB_CLIENT_ID ?? import.meta.env.GITHUB_CLIENT_ID;
+  const clientSecret = runtimeEnv?.GITHUB_CLIENT_SECRET ?? import.meta.env.GITHUB_CLIENT_SECRET;
+
+  return { clientId, clientSecret };
+};
+
+export const GET: APIRoute = async ({ locals, request }) => {
+  const { clientId, clientSecret } = getGithubCredentials(locals);
 
   if (!clientId || !clientSecret) {
     return new Response('Missing GitHub OAuth configuration.', {
@@ -17,6 +31,7 @@ export const onRequest: PagesFunction = async ({ env, request }) => {
   try {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get('code');
+    const state = requestUrl.searchParams.get('state');
 
     if (!code) {
       return new Response('Missing authorization code.', {
@@ -46,8 +61,7 @@ export const onRequest: PagesFunction = async ({ env, request }) => {
       });
     }
 
-    const tokenJson: { access_token?: string; error?: string; error_description?: string } =
-      await tokenResponse.json();
+    const tokenJson = (await tokenResponse.json()) as GithubTokenResponse;
 
     if (!tokenJson.access_token) {
       console.error('GitHub token exchange error', tokenJson);
@@ -60,6 +74,11 @@ export const onRequest: PagesFunction = async ({ env, request }) => {
 
     const token = tokenJson.access_token;
 
+    const payload: Record<string, unknown> = { token };
+    if (state) {
+      payload.state = state;
+    }
+
     const html = [
       '<!DOCTYPE html>',
       '<html lang="en">',
@@ -69,12 +88,15 @@ export const onRequest: PagesFunction = async ({ env, request }) => {
       '  </head>',
       '  <body>',
       '    <script>',
-      `      const token = ${JSON.stringify(token)};`,
+      `      const payload = ${JSON.stringify(payload)};`,
+      "      const message = 'authorization:github:success:' + JSON.stringify(payload);",
       "      try {",
-      "        window.opener.postMessage(",
-      "          'authorization:github:success:' + JSON.stringify({ token }),",
-      "          window.location.origin",
-      "        );",
+      "        const targetWindow = window.opener || window.parent;",
+      "        if (targetWindow) {",
+      "          targetWindow.postMessage(message, '*');",
+      "        } else {",
+      "          console.error('Unable to locate opener window for OAuth completion');",
+      "        }",
       "      } catch (error) {",
       "        console.error('Failed to notify opener about authorization success', error);",
       "      }",
