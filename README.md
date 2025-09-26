@@ -1,1 +1,51 @@
-# joshryan.contact-sample
+# Astro Brochure Site
+
+A minimal, production-ready Astro brochure site with Home, About, and Contact pages.
+
+## Prerequisites
+
+- Node.js 18 or newer
+- npm 9 or newer (or any compatible package manager)
+
+## Getting Started
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+## Development
+
+Start the local development server with hot reload:
+
+```bash
+npm run dev
+```
+
+## Production Build
+
+Create an optimized build in the `dist/` directory:
+
+```bash
+npm run build
+```
+
+## Preview
+
+Preview the production build locally (runs `npm run build` if necessary):
+
+```bash
+npm run preview
+```
+
+## Project Structure
+
+```
+└── src
+    ├── components
+    ├── layouts
+    └── pages
+```
+
+Static assets live in `public/` and are served at the site root.

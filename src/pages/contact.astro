@@ -1,0 +1,68 @@
+---
+import Page from '../layouts/Page.astro';
+import ContactForm from '../components/ContactForm.astro';
+---
+<Page title="Contact — Acme Co." description="Get in touch with the Acme Co. team.">
+  <section class="hero" aria-labelledby="contact-heading">
+    <div class="container">
+      <p class="eyebrow">Contact</p>
+      <h1 id="contact-heading">Let’s build something remarkable</h1>
+      <p>
+        Whether you’re launching a new product or refreshing your brand, we’re ready to collaborate.
+        Reach out directly or complete the form and we’ll respond shortly.
+      </p>
+      <div class="details">
+        <a href="mailto:hello@example.com">hello@example.com</a>
+        <a href="tel:+1234567890">+1 (234) 567-890</a>
+        <span>123 Market Street, Suite 400 · San Francisco, CA</span>
+      </div>
+    </div>
+  </section>
+  <ContactForm />
+  <style>
+    .hero {
+      padding: 5rem 0 3rem;
+    }
+
+    .container {
+      width: min(100% - 2rem, var(--max-width));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.32em;
+      font-size: 0.75rem;
+      color: var(--color-accent);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0 0 1.5rem;
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      line-height: 1.1;
+    }
+
+    p {
+      color: var(--color-muted);
+      max-width: 60ch;
+    }
+
+    .details {
+      margin-top: 2rem;
+      display: grid;
+      gap: 0.5rem;
+      font-weight: 600;
+    }
+
+    .details a {
+      color: var(--color-text);
+    }
+
+    .details a:hover,
+    .details a:focus {
+      color: var(--color-accent);
+    }
+  </style>
+</Page>
