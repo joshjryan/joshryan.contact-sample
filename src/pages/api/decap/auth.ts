@@ -23,8 +23,16 @@ export const GET: APIRoute = async ({ locals, request }) => {
 
     const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
     authorizeUrl.searchParams.set('client_id', clientId);
-    authorizeUrl.searchParams.set('scope', 'repo');
+    authorizeUrl.searchParams.set(
+      'scope',
+      requestUrl.searchParams.get('scope') ?? 'repo',
+    );
     authorizeUrl.searchParams.set('redirect_uri', redirectUri.toString());
+
+    const state = requestUrl.searchParams.get('state');
+    if (state) {
+      authorizeUrl.searchParams.set('state', state);
+    }
 
     return Response.redirect(authorizeUrl.toString(), 302);
   } catch (error) {

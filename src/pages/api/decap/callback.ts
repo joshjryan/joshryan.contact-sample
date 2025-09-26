@@ -31,6 +31,8 @@ export const GET: APIRoute = async ({ locals, request }) => {
   try {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get('code');
+    const state = requestUrl.searchParams.get('state');
+
 
     if (!code) {
       return new Response('Missing authorization code.', {
@@ -73,6 +75,12 @@ export const GET: APIRoute = async ({ locals, request }) => {
 
     const token = tokenJson.access_token;
 
+    const payload: Record<string, unknown> = { token };
+    if (state) {
+      payload.state = state;
+    }
+
+
     const html = [
       '<!DOCTYPE html>',
       '<html lang="en">',
@@ -82,12 +90,16 @@ export const GET: APIRoute = async ({ locals, request }) => {
       '  </head>',
       '  <body>',
       '    <script>',
-      `      const token = ${JSON.stringify(token)};`,
+      `      const payload = ${JSON.stringify(payload)};`,
+      "      const message = 'authorization:github:success:' + JSON.stringify(payload);",
       "      try {",
-      "        window.opener.postMessage(",
-      "          'authorization:github:success:' + JSON.stringify({ token }),",
-      "          window.location.origin",
-      "        );",
+      "        const targetWindow = window.opener || window.parent;",
+      "        if (targetWindow) {",
+      "          targetWindow.postMessage(message, '*');",
+      "        } else {",
+      "          console.error('Unable to locate opener window for OAuth completion');",
+      "        }",
+
       "      } catch (error) {",
       "        console.error('Failed to notify opener about authorization success', error);",
       "      }",
