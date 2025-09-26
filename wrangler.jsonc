@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developers.cloudflare.com/workers/tools/wrangler/configuration/schema.json",
+  "name": "astro-brochure-site",
+  "main": "./dist/_worker.js",
+  "compatibility_date": "2024-06-01",
+  "assets": {
+    "directory": "./dist/client"
+  },
+  "build": {
+    "command": "npm run build"
+  }
+}
