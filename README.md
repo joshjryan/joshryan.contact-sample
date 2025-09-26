@@ -41,6 +41,7 @@ Build and deploy the worker (requires authentication with Cloudflare):
 npm run deploy
 ```
 
+
 The build step ensures `dist/client` exists with the static assets Wrangler expects, so deploys succeed even when no client bundles are generated.
 
 To preview the worker locally with asset serving, use Wrangler's dev server:
