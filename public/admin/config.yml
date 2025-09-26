@@ -1,6 +1,6 @@
 backend:
   name: github
-  repo: YOUR_ORG/YOUR_REPO
+  repo: joshjryan/joshryan.contact-sample
   branch: main
   base_url: /api/decap
   auth_endpoint: /auth
