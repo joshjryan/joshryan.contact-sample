@@ -6,9 +6,16 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "postbuild": "node scripts/postbuild/prepare-worker-assets.mjs",
+    "preview": "astro preview",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "astro": "^4.5.5"
+    "@astrojs/cloudflare": "^8.1.0",
+    "astro": "^4.16.19"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240919.0",
+    "wrangler": "^4.40.2"
   }
 }

@@ -6,7 +6,7 @@
     "module": "ESNext",
     "moduleResolution": "Node",
     "target": "ESNext",
-    "types": ["astro/client"],
+    "types": ["astro/client", "@cloudflare/workers-types"],
     "strict": true
   },
   "include": ["src"],
