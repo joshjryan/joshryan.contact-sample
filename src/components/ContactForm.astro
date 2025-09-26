@@ -1,0 +1,116 @@
+<section class="contact" aria-labelledby="contact-heading">
+  <div class="container">
+    <div class="intro">
+      <p class="eyebrow">Contact</p>
+      <h2 id="contact-heading">Share your vision</h2>
+      <p>
+        Tell us about your project, timeline, and goals. We'll follow up within one business day to
+        schedule a conversation.
+      </p>
+    </div>
+    <form class="form" aria-describedby="contact-heading">
+      <div class="field">
+        <label for="name">Name</label>
+        <input id="name" name="name" type="text" autocomplete="name" required />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required />
+      </div>
+      <div class="field">
+        <label for="company">Company</label>
+        <input id="company" name="company" type="text" autocomplete="organization" />
+      </div>
+      <div class="field">
+        <label for="message">Project details</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+      </div>
+      <button type="submit">Send message</button>
+    </form>
+  </div>
+  <style>
+    .contact {
+      padding: 5rem 0 6rem;
+    }
+
+    .container {
+      display: grid;
+      gap: 2.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      align-items: start;
+    }
+
+    .intro h2 {
+      margin: 0 0 1rem;
+      font-size: clamp(2rem, 4vw, 2.75rem);
+    }
+
+    .intro p {
+      margin: 0 0 1.5rem;
+      color: var(--color-muted);
+      max-width: 38ch;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.32em;
+      font-size: 0.75rem;
+      color: var(--color-accent);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .form {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      padding: clamp(1.5rem, 3vw, 2rem);
+      box-shadow: var(--shadow);
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input,
+    textarea {
+      font: inherit;
+      padding: 0.85rem 1rem;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 12px;
+      background: transparent;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    input:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.25);
+    }
+
+    button {
+      justify-self: start;
+      padding: 0.95rem 2.25rem;
+      border-radius: 999px;
+      border: none;
+      background: var(--color-accent);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 200ms ease, box-shadow 200ms ease;
+      box-shadow: var(--shadow);
+    }
+
+    button:hover,
+    button:focus {
+      transform: translateY(-1px);
+    }
+  </style>
+</section>

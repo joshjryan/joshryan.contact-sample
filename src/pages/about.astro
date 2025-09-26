@@ -1,0 +1,136 @@
+---
+import Page from '../layouts/Page.astro';
+---
+<Page title="About — Acme Co." description="Learn more about the studio behind Acme Co.">
+  <section class="hero" aria-labelledby="about-heading">
+    <div class="container">
+      <p class="eyebrow">About</p>
+      <h1 id="about-heading">Human-centered design, at scale</h1>
+      <p>
+        Since 2008, Acme Co. has partnered with teams across industries to craft resilient brands and
+        digital products. We are strategists, designers, and engineers guided by curiosity and
+        empathy.
+      </p>
+    </div>
+  </section>
+  <section class="values" aria-labelledby="values-heading">
+    <div class="container">
+      <h2 id="values-heading">Values that shape our work</h2>
+      <dl>
+        <div>
+          <dt>Integrity</dt>
+          <dd>We operate transparently and deliver on every promise.</dd>
+        </div>
+        <div>
+          <dt>Clarity</dt>
+          <dd>We translate complexity into simple, elegant solutions.</dd>
+        </div>
+        <div>
+          <dt>Care</dt>
+          <dd>We design for people and measure success by the value they receive.</dd>
+        </div>
+      </dl>
+    </div>
+  </section>
+  <section class="team" aria-labelledby="team-heading">
+    <div class="container">
+      <h2 id="team-heading">Leadership</h2>
+      <div class="grid">
+        <article>
+          <h3>Jordan Nguyen</h3>
+          <p>Founder &amp; CEO</p>
+        </article>
+        <article>
+          <h3>Priya Desai</h3>
+          <p>Head of Design</p>
+        </article>
+        <article>
+          <h3>Mateo Silva</h3>
+          <p>Director of Engineering</p>
+        </article>
+      </div>
+    </div>
+  </section>
+  <style>
+    .hero {
+      padding: 5rem 0 4rem;
+    }
+
+    .container {
+      width: min(100% - 2rem, var(--max-width));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      text-transform: uppercase;
+      letter-spacing: 0.32em;
+      font-size: 0.75rem;
+      color: var(--color-accent);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    h1 {
+      margin: 0 0 1.5rem;
+      font-size: clamp(2.25rem, 4vw, 3rem);
+      line-height: 1.1;
+    }
+
+    p {
+      color: var(--color-muted);
+      max-width: 60ch;
+    }
+
+    .values {
+      padding: 4rem 0;
+      background: var(--color-surface);
+    }
+
+    .values h2 {
+      margin-top: 0;
+      font-size: clamp(1.75rem, 3vw, 2.5rem);
+    }
+
+    dl {
+      display: grid;
+      gap: 1.5rem;
+      margin: 2rem 0 0;
+    }
+
+    dt {
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    dd {
+      margin: 0;
+      color: var(--color-muted);
+    }
+
+    .team {
+      padding: 4rem 0 5rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    article {
+      background: var(--color-surface);
+      border-radius: var(--radius);
+      padding: 2rem;
+      box-shadow: var(--shadow);
+    }
+
+    article h3 {
+      margin: 0 0 0.5rem;
+    }
+
+    article p {
+      margin: 0;
+      color: var(--color-muted);
+    }
+  </style>
+</Page>
