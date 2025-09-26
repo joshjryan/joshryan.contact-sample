@@ -1,15 +1,18 @@
 ---
 import Page from '../layouts/Page.astro';
 import ContactForm from '../components/ContactForm.astro';
-import homeContent from '../../content/pages/home.md';
+import { getEntry } from 'astro:content';
 
-const { frontmatter } = homeContent;
+const homeEntry = await getEntry('pages', 'home');
+const { data } = homeEntry;
+const { Content } = await homeEntry.render();
+const heroImage = data.hero_image ?? undefined;
 ---
 <Page
-  title={frontmatter.title}
-  description={frontmatter.description}
-  heroImage={frontmatter.hero_image}
-  Content={homeContent.Content}
+  title={data.title}
+  description={data.description}
+  heroImage={heroImage}
+  Content={Content}
 >
   <ContactForm />
 </Page>

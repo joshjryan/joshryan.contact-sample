@@ -1,12 +1,15 @@
 ---
 import Page from '../layouts/Page.astro';
-import aboutContent from '../../content/pages/about.md';
+import { getEntry } from 'astro:content';
 
-const { frontmatter } = aboutContent;
+const aboutEntry = await getEntry('pages', 'about');
+const { data } = aboutEntry;
+const { Content } = await aboutEntry.render();
+const heroImage = data.hero_image ?? undefined;
 ---
 <Page
-  title={frontmatter.title}
-  description={frontmatter.description}
-  heroImage={frontmatter.hero_image}
-  Content={aboutContent.Content}
+  title={data.title}
+  description={data.description}
+  heroImage={heroImage}
+  Content={Content}
 />

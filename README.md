@@ -62,8 +62,10 @@ npm run preview
 ```
 └── src
     ├── components
+    ├── content
+    │   └── pages
     ├── layouts
     └── pages
 ```
 
-Static assets live in `public/` and are served at the site root.
+Static assets live in `public/` and are served at the site root. Markdown page content is stored in `src/content/pages/` and typed through Astro Content Collections. After modifying collection schemas, run `npx astro sync` to regenerate type definitions.
