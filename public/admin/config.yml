@@ -10,7 +10,7 @@ publish_mode: editorial_workflow
 collections:
   - name: pages
     label: Pages
-    folder: content/pages
+    folder: src/content/pages
     create: true
     slug: "{{slug}}"
     extension: "md"
