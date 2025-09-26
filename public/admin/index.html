@@ -21,7 +21,14 @@
             try {
               const payloadText = event.data.substring('authorization:github:success:'.length);
               const payload = JSON.parse(payloadText);
-              console.info(`${LOG_PREFIX} Received GitHub authorization payload.`, payload);
+              const { state, validatedState, ...rest } = payload;
+              console.info(
+                `${LOG_PREFIX} Received GitHub authorization payload.`,
+                rest,
+                state ? { state } : undefined,
+                validatedState ? { validatedState } : undefined,
+              );
+
             } catch (parseError) {
               console.error(`${LOG_PREFIX} Failed to parse GitHub authorization payload.`, parseError);
             }

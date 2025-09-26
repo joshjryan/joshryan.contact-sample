@@ -136,11 +136,11 @@ export const GET: APIRoute = async ({ locals, request }) => {
       });
     }
 
-    const validatedState = parsedState.payload ?? stateParam;
+    const validatedState = parsedState.payload ?? null;
 
     console.info('OAuth state validated successfully.', {
       csrf: parsedState.csrf,
-      clientState: parsedState.payload ?? null,
+      clientState: validatedState,
     });
 
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
@@ -182,8 +182,13 @@ export const GET: APIRoute = async ({ locals, request }) => {
     const token = tokenJson.access_token;
 
     const payload: Record<string, unknown> = { token };
+
+    if (stateParam) {
+      payload.state = stateParam;
+    }
+
     if (validatedState) {
-      payload.state = validatedState;
+      payload.validatedState = validatedState;
     }
 
     const payloadJson = JSON.stringify(payload);
