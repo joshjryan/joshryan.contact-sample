@@ -1,11 +1,68 @@
 import type { APIContext, APIRoute } from 'astro';
 
+const STATE_COOKIE_NAME = 'decap_oauth_state';
+const STATE_COOKIE_PATH = '/api/decap';
+
 type RuntimeEnv = Record<string, string | undefined>;
 
 type GithubTokenResponse = {
   access_token?: string;
   error?: string;
   error_description?: string;
+};
+
+type ParsedState = {
+  csrf: string;
+  payload?: string;
+};
+
+const parseCookies = (cookieHeader: string | null): Record<string, string> => {
+  if (!cookieHeader) {
+    return {};
+  }
+
+  return cookieHeader.split(';').reduce<Record<string, string>>((accumulator, cookie) => {
+    const [name, ...valueParts] = cookie.trim().split('=');
+    if (!name) {
+      return accumulator;
+    }
+
+    const value = valueParts.join('=');
+    accumulator[name] = value;
+    return accumulator;
+  }, {});
+};
+
+const parseAuthorizeState = (rawState: string): ParsedState => {
+  try {
+    const parsed = JSON.parse(rawState) as Partial<ParsedState>;
+    if (parsed && typeof parsed === 'object' && typeof parsed.csrf === 'string') {
+      return {
+        csrf: parsed.csrf,
+        payload: typeof parsed.payload === 'string' ? parsed.payload : undefined,
+      };
+    }
+  } catch (error) {
+    console.warn('Failed to parse OAuth state as JSON, falling back to raw value.', error);
+  }
+
+  return { csrf: rawState };
+};
+
+const createClearedStateCookie = (requestUrl: URL): string => {
+  const directives = [
+    `${STATE_COOKIE_NAME}=`,
+    `Path=${STATE_COOKIE_PATH}`,
+    'Max-Age=0',
+    'HttpOnly',
+    'SameSite=Lax',
+  ];
+
+  if (requestUrl.protocol === 'https:') {
+    directives.push('Secure');
+  }
+
+  return directives.join('; ');
 };
 
 const getGithubCredentials = (
@@ -31,7 +88,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
   try {
     const requestUrl = new URL(request.url);
     const code = requestUrl.searchParams.get('code');
-    const state = requestUrl.searchParams.get('state');
+    const stateParam = requestUrl.searchParams.get('state');
 
     if (!code) {
       return new Response('Missing authorization code.', {
@@ -39,6 +96,52 @@ export const GET: APIRoute = async ({ locals, request }) => {
         headers: { 'content-type': 'text/plain' },
       });
     }
+
+    const cookies = parseCookies(request.headers.get('cookie'));
+    const storedStateValue = cookies[STATE_COOKIE_NAME];
+    const storedState = storedStateValue ? decodeURIComponent(storedStateValue) : undefined;
+
+    if (!storedState) {
+      console.error('OAuth callback received without a stored state cookie.');
+      const headers = new Headers({ 'content-type': 'text/plain' });
+      headers.append('Set-Cookie', createClearedStateCookie(requestUrl));
+      return new Response('Missing stored OAuth state.', {
+        status: 400,
+        headers,
+      });
+    }
+
+    if (!stateParam) {
+      console.error('OAuth callback missing state parameter.');
+      const headers = new Headers({ 'content-type': 'text/plain' });
+      headers.append('Set-Cookie', createClearedStateCookie(requestUrl));
+      return new Response('Missing OAuth state parameter.', {
+        status: 400,
+        headers,
+      });
+    }
+
+    const parsedState = parseAuthorizeState(stateParam);
+
+    if (storedState !== parsedState.csrf) {
+      console.error('OAuth state mismatch detected.', {
+        expected: storedState,
+        received: parsedState.csrf,
+      });
+      const headers = new Headers({ 'content-type': 'text/plain' });
+      headers.append('Set-Cookie', createClearedStateCookie(requestUrl));
+      return new Response('OAuth state mismatch detected.', {
+        status: 400,
+        headers,
+      });
+    }
+
+    const validatedState = parsedState.payload ?? stateParam;
+
+    console.info('OAuth state validated successfully.', {
+      csrf: parsedState.csrf,
+      clientState: parsedState.payload ?? null,
+    });
 
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
@@ -55,9 +158,11 @@ export const GET: APIRoute = async ({ locals, request }) => {
 
     if (!tokenResponse.ok) {
       console.error('GitHub token exchange failed with status', tokenResponse.status);
+      const headers = new Headers({ 'content-type': 'text/plain' });
+      headers.append('Set-Cookie', createClearedStateCookie(requestUrl));
       return new Response('Failed to exchange token with GitHub.', {
         status: 502,
-        headers: { 'content-type': 'text/plain' },
+        headers,
       });
     }
 
@@ -66,20 +171,25 @@ export const GET: APIRoute = async ({ locals, request }) => {
     if (!tokenJson.access_token) {
       console.error('GitHub token exchange error', tokenJson);
       const message = tokenJson.error_description || tokenJson.error || 'Unknown GitHub error.';
+      const headers = new Headers({ 'content-type': 'text/plain' });
+      headers.append('Set-Cookie', createClearedStateCookie(requestUrl));
       return new Response(`GitHub authorization failed: ${message}`, {
         status: 502,
-        headers: { 'content-type': 'text/plain' },
+        headers,
       });
     }
 
     const token = tokenJson.access_token;
 
     const payload: Record<string, unknown> = { token };
-    if (state) {
-      payload.state = state;
+    if (validatedState) {
+      payload.state = validatedState;
     }
 
     const payloadJson = JSON.stringify(payload);
+
+    const successHeaders = new Headers({ 'content-type': 'text/html' });
+    successHeaders.append('Set-Cookie', createClearedStateCookie(requestUrl));
 
     const html = [
       '<!DOCTYPE html>',
@@ -126,7 +236,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
 
     return new Response(html, {
       status: 200,
-      headers: { 'content-type': 'text/html' },
+      headers: successHeaders,
     });
   } catch (error) {
     console.error('Unexpected error during GitHub OAuth callback', error);
