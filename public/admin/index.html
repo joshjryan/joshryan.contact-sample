@@ -6,7 +6,29 @@
     <title>Decap CMS</title>
   </head>
   <body>
-    <!-- Include the script to build the page and provide authentication -->
+    <!-- Defensive DOM utility -->
+    <script>
+      window.safeRemoveChild = function(parent, child) {
+        if (parent && child && parent.contains(child)) {
+          parent.removeChild(child);
+        }
+      };
+
+      window.addEventListener("error", function(e) {
+        // Catch NotFoundError from removeChild
+        if (
+          e.error &&
+          e.error.name === "NotFoundError" &&
+          e.message.includes("removeChild")
+        ) {
+          console.warn("Prevented NotFoundError during removeChild:", e.message);
+          e.preventDefault();
+          return false;
+        }
+      });
+    </script>
+
+    <!-- OAuth login and Decap CMS logic -->
     <script>
       (function () {
         const LOG_PREFIX = '[Decap OAuth]';
@@ -22,7 +44,7 @@
               const payloadText = event.data.substring('authorization:github:success:'.length);
               const payload = JSON.parse(payloadText);
               const { token, state, validatedState } = payload;
-              
+
               console.info(
                 `${LOG_PREFIX} Received GitHub authorization payload.`,
                 { hasToken: !!token },
@@ -34,12 +56,12 @@
                 // Store the token for Decap CMS in localStorage for persistence
                 console.info(`${LOG_PREFIX} Storing OAuth token...`);
                 localStorage.setItem('decap-cms-auth-token', token);
-                
+
                 // Notify any waiting processes that we have a token
                 window.dispatchEvent(new CustomEvent('decap-auth-success', { 
                   detail: { token, state, validatedState } 
                 }));
-                
+
                 // Reload to reinitialize with the token
                 setTimeout(() => {
                   console.info(`${LOG_PREFIX} Reloading to initialize CMS with token...`);
@@ -54,17 +76,16 @@
         });
       })();
     </script>
-    
+
     <!-- Load Decap CMS -->
     <script src="https://unpkg.com/decap-cms@3.1.10/dist/decap-cms.js"></script>
-    
+
     <script>
-      // CMS configuration and initialization
       window.CMS_MANUAL_INIT = true;
-      
+
       function initCMS() {
         const LOG_PREFIX = '[Decap CMS]';
-        
+
         if (typeof window.CMS === 'undefined') {
           console.warn(`${LOG_PREFIX} CMS not available yet, retrying...`);
           setTimeout(initCMS, 200);
@@ -72,16 +93,16 @@
         }
 
         console.info(`${LOG_PREFIX} Initializing...`);
-        
+
         // Check for stored auth token
         const storedToken = localStorage.getItem('decap-cms-auth-token');
         if (storedToken) {
           console.info(`${LOG_PREFIX} Found stored auth token`);
         }
-        
+
         // Initialize CMS - it will read config.yml automatically
         window.CMS.init();
-        
+
         console.info(`${LOG_PREFIX} Initialization complete`);
       }
 
