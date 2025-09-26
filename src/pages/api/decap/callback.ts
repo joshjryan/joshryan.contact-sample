@@ -80,6 +80,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
     }
 
     const payloadJson = JSON.stringify(payload);
+
     const html = [
       '<!DOCTYPE html>',
       '<html lang="en">',
