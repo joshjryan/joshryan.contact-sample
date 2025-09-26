@@ -3,12 +3,98 @@ import Base from './Base.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 
-const { title, description } = Astro.props;
+const {
+  title,
+  description,
+  heroImage,
+  Content,
+} = Astro.props;
 ---
 <Base {title} {description}>
   <Header />
   <main id="main-content">
+    <div class="container">
+      <article class="page">
+        {heroImage && (
+          <img class="page-hero" src={heroImage} alt="" loading="lazy" />
+        )}
+        {Content && <Content />}
+      </article>
+    </div>
     <slot />
   </main>
   <Footer />
 </Base>
+<style>
+  main {
+    padding: clamp(3rem, 6vw, 5rem) 0;
+    display: grid;
+    gap: clamp(3rem, 6vw, 4.5rem);
+  }
+
+  .page {
+    display: grid;
+    gap: 1.75rem;
+  }
+
+  .page-hero {
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .page :global(h1) {
+    margin: 0;
+    font-size: clamp(2.5rem, 5vw, 3.25rem);
+    line-height: 1.1;
+  }
+
+  .page :global(h2) {
+    margin: 2.5rem 0 0.75rem;
+    font-size: clamp(1.85rem, 4vw, 2.5rem);
+  }
+
+  .page :global(h3) {
+    margin: 2rem 0 0.5rem;
+    font-size: clamp(1.35rem, 3vw, 1.75rem);
+  }
+
+  .page :global(p) {
+    margin: 0;
+    color: var(--color-muted);
+    max-width: 70ch;
+  }
+
+  .page :global(ul),
+  .page :global(ol) {
+    margin: 0;
+    padding-left: 1.5rem;
+    display: grid;
+    gap: 0.5rem;
+    color: var(--color-muted);
+  }
+
+  .page :global(blockquote) {
+    margin: 0;
+    padding: 1.5rem 1.75rem;
+    border-left: 4px solid var(--color-accent);
+    background: rgba(47, 128, 237, 0.08);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    color: var(--color-text);
+    font-style: italic;
+  }
+
+  .page :global(blockquote p) {
+    color: inherit;
+  }
+
+  .page :global(a) {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+  }
+
+  .page :global(a:hover),
+  .page :global(a:focus) {
+    text-decoration: none;
+  }
+</style>
