@@ -1,0 +1,22 @@
+backend:
+  name: github
+  repo: YOUR_ORG/YOUR_REPO
+  branch: main
+  base_url: /api/decap
+  auth_endpoint: /auth
+media_folder: "public/uploads"
+public_folder: "/uploads"
+publish_mode: editorial_workflow
+collections:
+  - name: pages
+    label: Pages
+    folder: content/pages
+    create: true
+    slug: "{{slug}}"
+    extension: "md"
+    format: "frontmatter"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Description, name: description, widget: text }
+      - { label: Hero Image, name: hero_image, widget: image, required: false }
+      - { label: Body, name: body, widget: markdown }
