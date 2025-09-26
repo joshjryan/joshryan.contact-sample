@@ -33,6 +33,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
     const code = requestUrl.searchParams.get('code');
     const state = requestUrl.searchParams.get('state');
 
+
     if (!code) {
       return new Response('Missing authorization code.', {
         status: 400,
@@ -79,6 +80,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
       payload.state = state;
     }
 
+
     const html = [
       '<!DOCTYPE html>',
       '<html lang="en">',
@@ -97,6 +99,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
       "        } else {",
       "          console.error('Unable to locate opener window for OAuth completion');",
       "        }",
+
       "      } catch (error) {",
       "        console.error('Failed to notify opener about authorization success', error);",
       "      }",
