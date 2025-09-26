@@ -1,10 +1,14 @@
-import type { PagesFunction } from '@cloudflare/workers-types';
+import type { APIContext, APIRoute } from 'astro';
 
-/**
- * Cloudflare Pages Function to start the GitHub OAuth flow for Decap CMS.
- */
-export const onRequest: PagesFunction = async ({ env, request }) => {
-  const clientId = env.GITHUB_CLIENT_ID as string | undefined;
+type RuntimeEnv = Record<string, string | undefined>;
+
+const getGithubClientId = (locals: APIContext['locals']): string | undefined => {
+  const runtimeEnv = locals.runtime?.env as RuntimeEnv | undefined;
+  return runtimeEnv?.GITHUB_CLIENT_ID ?? import.meta.env.GITHUB_CLIENT_ID;
+};
+
+export const GET: APIRoute = async ({ locals, request }) => {
+  const clientId = getGithubClientId(locals);
 
   if (!clientId) {
     return new Response('Missing GitHub client ID configuration.', {
