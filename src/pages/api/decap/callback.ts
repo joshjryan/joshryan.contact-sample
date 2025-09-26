@@ -33,7 +33,6 @@ export const GET: APIRoute = async ({ locals, request }) => {
     const code = requestUrl.searchParams.get('code');
     const state = requestUrl.searchParams.get('state');
 
-
     if (!code) {
       return new Response('Missing authorization code.', {
         status: 400,
@@ -80,6 +79,7 @@ export const GET: APIRoute = async ({ locals, request }) => {
       payload.state = state;
     }
 
+    const payloadJson = JSON.stringify(payload);
 
     const html = [
       '<!DOCTYPE html>',
@@ -87,23 +87,38 @@ export const GET: APIRoute = async ({ locals, request }) => {
       '  <head>',
       '    <meta charset="utf-8" />',
       '    <title>GitHub Authorization Success</title>',
+      '    <style>',
+      '      body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding: 2rem; }',
+      '    </style>',
       '  </head>',
       '  <body>',
+      '    <p>Authorization complete. You may close this tab if it does not close automatically.</p>',
       '    <script>',
-      `      const payload = ${JSON.stringify(payload)};`,
+      `      const payload = ${payloadJson};`,
       "      const message = 'authorization:github:success:' + JSON.stringify(payload);",
+      "      let targetWindow = null;",
       "      try {",
-      "        const targetWindow = window.opener || window.parent;",
-      "        if (targetWindow) {",
-      "          targetWindow.postMessage(message, '*');",
-      "        } else {",
-      "          console.error('Unable to locate opener window for OAuth completion');",
+      "        if (window.opener && !window.opener.closed) {",
+      "          targetWindow = window.opener;",
+      "        } else if (window.parent && window.parent !== window) {",
+      "          targetWindow = window.parent;",
       "        }",
-
-      "      } catch (error) {",
-      "        console.error('Failed to notify opener about authorization success', error);",
+      "      } catch (lookupError) {",
+      "        console.error('Error while locating opener window for OAuth completion', lookupError);",
       "      }",
-      "      window.close();",
+      "      if (targetWindow) {",
+      "        try {",
+      "          targetWindow.postMessage(message, '*');",
+      "          window.close();",
+      "        } catch (postError) {",
+      "          console.error('Failed to notify opener about authorization success', postError);",
+      "        }",
+      "      } else {",
+      "        console.error('Unable to locate opener window for OAuth completion');",
+      "        const warning = document.createElement('p');",
+      "        warning.textContent = 'We could not return you to the admin screen automatically. Please switch back to it and refresh the page.';",
+      "        document.body.appendChild(warning);",
+      "      }",
       '    </script>',
       '  </body>',
       '</html>',
